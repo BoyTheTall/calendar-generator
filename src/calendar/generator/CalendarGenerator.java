@@ -19,15 +19,26 @@ public class CalendarGenerator {
     public static void main(String[] args) {
         System.out.print(generate_month(3,31));
     }
+    
+    
+    /**generates the calendar month with the day the month starts on and the number of days the month has
+     * the mapping for the start days is as follows
+     * 1-Monday
+     * 2-Tuesday
+     * 3-Wednesday
+     * 4-Thursday
+     * 5-Friday
+     * 6-Saturday
+     * 7-Sunday
+     * it returns a string representation of the month
+   */
     public static String generate_month(int start_day, int number_of_days){
       StringBuilder st = new StringBuilder();
        String[] days = {"M", "T", "W", "T", "F", "S", "S"};
         for (int i =0; i<7; i++){
-            //System.out.print(days[i]);
-            //System.out.print("\t");
             st.append(days[i]).append("\t");
         }
-        System.out.println();
+        
         st.append("\n");
         int[][] month = new int[6][7];
         int day_counter = 0;
@@ -47,22 +58,15 @@ public class CalendarGenerator {
         for (int i = 0; i < 6; i++){
             for(int j = 0; j < 7; j++){
                 if (month[i][j] > 0){
-                    //System.out.print(month[i][j]);
-                  //  System.out.print("\t");
                     st.append(month[i][j]).append("\t");
                 }
                 else{
-              //      System.out.print(" ");
-                //    System.out.print("\t");
                     st.append(" ").append("\t");
                 }
                 day_counter++;
             }
-            //System.out.println();
             st.append("\n");
         }
-
-        //System.out.print(st.toString());
         return st.toString();
     
     }
