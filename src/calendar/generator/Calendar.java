@@ -10,14 +10,18 @@ package calendar.generator;
  * @author Doctor
  */
 public class Calendar {
-    private int day_of_the_week;//will be the one that trackes if it is a moday-sunday
-    private int current_day_of_the_month = 4;//will track the current day of the displayed month
-    private int current_month;
-    private int year;
+    private int day_of_the_week;//will be the one that trackes if it is a moday-sunday for the automated day cycle thing
+    private int current_day_of_the_month = 4;//will track the current day of the displayed month the automated day cycle thing
+    private int current_month; // will track the month in the automated day cycle thing
+    private int year;//will track the current year in the automated day cycle thing
     private int counter_for_current_day_of_the_week;//only use this for tracking the curent day of the month when printing out a whole year of a calendar
+    //the arrays were made so that i can have the days of the months and the months themsleves on hand. I would make a function that accepts any array of days but i am kinda lazy
     private int[] year_month_days = {31,28,31,30,31,30,31,31,30,31,30,31};
     private int[] leap_year_month_days = {31,31,31,30,31,30,31,31,30,31,30,31};
     private String[] months = {"January","February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    
+    
+    
     public Calendar(int start_day_of_year){
         this.day_of_the_week = start_day_of_year;
     }
@@ -118,13 +122,13 @@ public class Calendar {
         StringBuilder sb = new StringBuilder();
         if(is_leap_year == false){
             for (int i = 0; i < 12; i++){
-                sb.append(this.months[i]).append("\n");
+                sb.append(this.months[i]).append("-").append(year).append("\n");
                 sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.year_month_days[i], false)).append("\n");
             }
         }
         else{
             for (int i = 0; i < 12; i++){
-                sb.append(this.months[i]).append("\n");
+                sb.append(this.months[i]).append("-").append(year).append("\n");
                 sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.leap_year_month_days[i], false)).append("\n");
             }
         }
