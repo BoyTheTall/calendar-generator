@@ -18,7 +18,7 @@ public class CalendarGenerator {
      */
     public static void main(String[] args) {
         Calendar c = new Calendar(23);
-        System.out.print(c.generate_year(1));
+        System.out.print(c.generate_year(1, 2024));
     }
     
     

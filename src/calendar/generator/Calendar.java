@@ -15,7 +15,8 @@ public class Calendar {
     private int current_month;
     private int year;
     private int counter_for_current_day_of_the_week;//only use this for tracking the curent day of the month when printing out a whole year of a calendar
-    private int[] month_days = {31,28,31,30,31,30,31,31,30,31,30,31};
+    private int[] year_month_days = {31,28,31,30,31,30,31,31,30,31,30,31};
+    private int[] leap_year_month_days = {31,31,31,30,31,30,31,31,30,31,30,31};
     private String[] months = {"January","February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     public Calendar(int start_day_of_year){
         this.day_of_the_week = start_day_of_year;
@@ -88,16 +89,44 @@ public class Calendar {
     }
     
     /**
-     *
-     * @param start_day
-     * @return
+     * this function generates the year of a calendar, you have to supply the day it starts so it the accuracy depends on you.
+     * A leap year occurs when a year is divisible by 4 and the remainder of the remainder of the year/100 is an even number that is
+     * year%4 = 0 and
+      year/100 = remainder1
+      remainder1%2 = 0
+      the mapping for the start days is as follows
+      1-Monday
+      2-Tuesday
+      3-Wednesday
+      4-Thursday
+      5-Friday
+      6-Saturday
+      7-Sunday
+      it returns a string representation of the month 
+     * @param start_day_of_year
+     * @param year
+     * @return String representation of the year
      */
-    public String generate_year(int start_day_of_year){
+    public String generate_year(int start_day_of_year, int year){
+        //checking if it is a leap year
+        boolean is_leap_year = false;
+        if(year%4==0 && (year%100)%2==0){
+            is_leap_year = true;
+           
+        }
         this.counter_for_current_day_of_the_week = start_day_of_year;
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 12; i++){
-            sb.append(this.months[i]).append("\n");
-            sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.month_days[i], false)).append("\n");
+        if(is_leap_year == false){
+            for (int i = 0; i < 12; i++){
+                sb.append(this.months[i]).append("\n");
+                sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.year_month_days[i], false)).append("\n");
+            }
+        }
+        else{
+            for (int i = 0; i < 12; i++){
+                sb.append(this.months[i]).append("\n");
+                sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.leap_year_month_days[i], false)).append("\n");
+            }
         }
         return sb.toString();
     }
