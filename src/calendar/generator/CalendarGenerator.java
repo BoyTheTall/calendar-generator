@@ -5,6 +5,8 @@
  */
 package calendar.generator;
 
+import java.util.Scanner;
+
 
 
 /**
@@ -17,8 +19,9 @@ public class CalendarGenerator {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Calendar c = new Calendar(23);
-        System.out.print(c.generate_year(1, 2024));
+        Calendar c = new Calendar(1);
+        c.launch_on_console();
+        
     }
     
     
