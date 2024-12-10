@@ -32,12 +32,13 @@ public class Calendar {
     
     public Calendar(int start_day_of_year){
         this.current_start_day = start_day_of_year;
+        this.day_of_the_week = this.current_start_day;
         this.current_day_of_the_month = 1;
         this.counter_for_current_day_of_the_month =1;
         this.year = 2023;
         this.current_month = 1;
-        dMonthHighlighted = generate_month(current_start_day, year_month_days[current_month], true);
-        dMonthUnhighlighted = generate_month(current_start_day, year_month_days[current_month], false);
+        dMonthHighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], true);
+        dMonthUnhighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], false);
     }
     
       /**generates the calendar month with the day the month starts on and the number of days the month has
@@ -55,7 +56,7 @@ public class Calendar {
      * @param track_current_day
      * @return string month
    */
-    public String generate_month(int start_day, int number_of_days, boolean track_current_day){
+    public String generate_month(int start_day, int number_of_days){
         StringBuilder st = new StringBuilder();
         String[] days = {"   M  ", "   T  ", "   W  ", "   T  ", "   F  ", "   S  ", "   S  "};
         for (int i =0; i<7; i++){
@@ -89,19 +90,13 @@ public class Calendar {
         for (int i = 0; i < 6; i++){
             for(int j = 0; j < 7; j++){
                 if (month[i][j] > 0){
-                    if(this.counter_for_current_day_of_the_month == month[i][j] && track_current_day == true){
-                        if(month[i][j]>=10)
-                            st.append(" [").append(month[i][j]).append("] \t");
-                        else
-                            st.append(" [0").append(month[i][j]).append("] \t");
-                    }
-                    else{
+                    
                         if (month[i][j] >= 10)
                             st.append("  ").append(month[i][j]).append("  \t");
                         else
                             st.append("  0").append(month[i][j]).append("  \t");
                     }
-                }
+                
                 else{
                     st.append(" ").append("\t");
                 }
@@ -144,13 +139,13 @@ public class Calendar {
         if(is_leap_year == false){
             for (int i = 0; i < 12; i++){
                 sb.append(this.months[i]).append("-").append(year).append("\n");
-                sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.year_month_days[i], false)).append("\n");
+                sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.year_month_days[i])).append("\n");
             }
         }
         else{
             for (int i = 0; i < 12; i++){
                 sb.append(this.months[i]).append("-").append(year).append("\n");
-                sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.leap_year_month_days[i], false)).append("\n");
+                sb.append(this.generate_month(this.counter_for_current_day_of_the_week, this.leap_year_month_days[i])).append("\n");
             }
         }
         return sb.toString();
@@ -158,6 +153,7 @@ public class Calendar {
     public String generate_drawing_month(int start_day, int number_of_days, boolean track_current_day){
         StringBuilder st = new StringBuilder();
         String[] days = {"   M  ", "   T  ", "   W  ", "   T  ", "   F  ", "   S  ", "   S  "};
+        st.append(months[current_month]).append("-").append(year).append("\n");
         for (int i =0; i<7; i++){
             st.append(days[i]).append("\t");
         }
@@ -170,19 +166,13 @@ public class Calendar {
         for (int i = start_day - 1; i < 7; i++){
             month[0][i] = day_counter + 1;
             day_counter++;
-            if (this.day_of_the_week == 7)
-                    this.day_of_the_week =1;
-            else
-                this.day_of_the_week++;
+            
         }
         for (int i = 1; i < 6; i++){
             for(int j = 0; j < 7  && day_counter < days_in_the_month; j++){
                 month[i][j] = day_counter + 1;
                 day_counter++;
-                if (this.day_of_the_week == 7)
-                    this.day_of_the_week =1;
-                else
-                    this.day_of_the_week++;
+                
             }
         }
         
@@ -257,22 +247,23 @@ public class Calendar {
                         if(month_length >= current_day_of_the_month){
                             StringBuilder sb = new StringBuilder();
                             sb.append(months[current_month]).append("-").append(year).append("\n");                           
-                            dMonthHighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], true);
-                            dMonthUnhighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], false);
+                            dMonthHighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], true);
+                            dMonthUnhighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], false);
                             System.out.println("bing bong");   
                         }
                         //generating a new month
                         else{
-                            
+                            System.out.println(day_of_the_week);
+                            day_of_the_week = getNewMonthStartDay(day_of_the_week, year_month_days[current_month]);
                             current_month++;
                             if(current_month < year_month_days.length){
-                                current_start_day = day_of_the_week+1;
+                                current_start_day = day_of_the_week;
                                 current_day_of_the_month = 1;//setting the day to the first
                                 
-                                StringBuilder sb = new StringBuilder();
-                                sb.append(months[current_month]).append("-").append(year).append("\n");
-                                dMonthHighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], true);
-                                dMonthUnhighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], false);
+                               
+                                
+                                dMonthHighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], true);
+                                dMonthUnhighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], false);
                             }
                             else
                                 System.out.println("Error ran out of months");
@@ -291,6 +282,37 @@ public class Calendar {
         update.start();
     }
     
-    
-    
+    /**
+     *
+     * @param current_start_day
+     * @param number_of_days
+     * @return
+     */
+    public int getNewMonthStartDay(int current_start_day, int number_of_days){
+    int new_start_day  = current_start_day;
+    int[][] month = new int[6][7];
+        int day_counter = 0;
+        int days_in_the_month = number_of_days;
+        
+        for (int i = current_start_day - 1; i < 7; i++){
+            month[0][i] = day_counter + 1;
+            day_counter++;
+            if (new_start_day == 7)
+                    new_start_day =1;
+            else
+                new_start_day++;
+        }
+        for (int i = 1; i < 6; i++){
+            for(int j = 0; j < 7  && day_counter < days_in_the_month; j++){
+                month[i][j] = day_counter + 1;
+                day_counter++;
+                if (new_start_day == 7)
+                    new_start_day =1;
+                else
+                    new_start_day++;
+            }
+        
+        }
+        return new_start_day;
+    } 
   }
