@@ -20,9 +20,10 @@ public class Calendar {
     private int current_month; // will track the month in the automated day cycle thing
     private int year;//will track the current year in the automated day cycle thing
     private int counter_for_current_day_of_the_week;//only use this for tracking the curent day of the month when printing out a whole year of a calendar
+    private int counter_for_current_day_of_the_month;
     //the arrays were made so that i can have the days of the months and the months themsleves on hand. I would make a function that accepts any array of days but i am kinda lazy
     private int[] year_month_days = {31,28,31,30,31,30,31,31,30,31,30,31};
-    private int[] leap_year_month_days = {31,31,31,30,31,30,31,31,30,31,30,31};
+    private int[] leap_year_month_days = {31,29,31,30,31,30,31,31,30,31,30,31};
     private String[] months = {"January","February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
     
     private String dMonthHighlighted;
@@ -32,6 +33,7 @@ public class Calendar {
     public Calendar(int start_day_of_year){
         this.current_start_day = start_day_of_year;
         this.current_day_of_the_month = 1;
+        this.counter_for_current_day_of_the_month =1;
         this.year = 2023;
         this.current_month = 1;
         dMonthHighlighted = generate_month(current_start_day, year_month_days[current_month], true);
@@ -87,7 +89,7 @@ public class Calendar {
         for (int i = 0; i < 6; i++){
             for(int j = 0; j < 7; j++){
                 if (month[i][j] > 0){
-                    if(this.current_day_of_the_month == month[i][j] && track_current_day == true){
+                    if(this.counter_for_current_day_of_the_month == month[i][j] && track_current_day == true){
                         if(month[i][j]>=10)
                             st.append(" [").append(month[i][j]).append("] \t");
                         else
@@ -133,7 +135,7 @@ public class Calendar {
     public String generate_year(int start_day_of_year, int year){
         //checking if it is a leap year
         boolean is_leap_year = false;
-        if(year%4==0 && (year%100)%2==0){
+        if((year%4==0 && year%100!=0) || (year%100 == 0 && year%400==0)){
             is_leap_year = true;
            
         }
@@ -153,7 +155,62 @@ public class Calendar {
         }
         return sb.toString();
     }
-    
+    public String generate_drawing_month(int start_day, int number_of_days, boolean track_current_day){
+        StringBuilder st = new StringBuilder();
+        String[] days = {"   M  ", "   T  ", "   W  ", "   T  ", "   F  ", "   S  ", "   S  "};
+        for (int i =0; i<7; i++){
+            st.append(days[i]).append("\t");
+        }
+        
+        st.append("\n");
+        int[][] month = new int[6][7];
+        int day_counter = 0;
+        int days_in_the_month = number_of_days;
+        
+        for (int i = start_day - 1; i < 7; i++){
+            month[0][i] = day_counter + 1;
+            day_counter++;
+            if (this.day_of_the_week == 7)
+                    this.day_of_the_week =1;
+            else
+                this.day_of_the_week++;
+        }
+        for (int i = 1; i < 6; i++){
+            for(int j = 0; j < 7  && day_counter < days_in_the_month; j++){
+                month[i][j] = day_counter + 1;
+                day_counter++;
+                if (this.day_of_the_week == 7)
+                    this.day_of_the_week =1;
+                else
+                    this.day_of_the_week++;
+            }
+        }
+        
+        for (int i = 0; i < 6; i++){
+            for(int j = 0; j < 7; j++){
+                if (month[i][j] > 0){
+                    if(this.current_day_of_the_month == month[i][j] && track_current_day == true){
+                        if(month[i][j]>=10)
+                            st.append(" [").append(month[i][j]).append("] \t");
+                        else
+                            st.append(" [0").append(month[i][j]).append("] \t");
+                    }
+                    else{
+                        if (month[i][j] >= 10)
+                            st.append("  ").append(month[i][j]).append("  \t");
+                        else
+                            st.append("  0").append(month[i][j]).append("  \t");
+                    }
+                }
+                else{
+                    st.append(" ").append("\t");
+                }
+                day_counter++;
+            }
+            st.append("\n");
+        }
+        return st.toString();
+    }
     public void launch_on_console(){
         Thread draw = new Thread(new Runnable() {
             @Override
@@ -161,17 +218,23 @@ public class Calendar {
                 while(true){
                     synchronized(dMonthHighlighted){
                     try {
+                        //clearing console
                         new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
                         System.out.flush();
+                        
+                        //"drawing" the current month with the highlighted day
                         System.out.print(dMonthHighlighted);
+                        //putting the thread to sleep for a bit so that it doesn't immediately "draw" over what was just displayed
+                        Thread.sleep(50);
                         
-                        Thread.sleep(1000);
                         
+                        //clearing console
                         new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
                         System.out.flush();
+                        //"drawing" the current month without the highlighted day
                         System.out.print(dMonthUnhighlighted);
-                        
-                        Thread.sleep(1000);
+                        //putting the thread to sleep for a bit so that it doesn't immediately "draw" over what was just displayed
+                        Thread.sleep(50);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Calendar.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex) {
@@ -184,21 +247,39 @@ public class Calendar {
         Thread update = new Thread(new Runnable() {
             @Override
             public void run() {
+                
                 while(true){
                 try {
                     synchronized(dMonthHighlighted){
                         current_day_of_the_month++;
                         int month_length = year_month_days[current_month];
+                        //goes through the current month
                         if(month_length >= current_day_of_the_month){
-                            if(day_of_the_week <= 7)
-                                day_of_the_week++;
-                            dMonthHighlighted = generate_month(current_start_day, year_month_days[current_month], true);
-                            dMonthUnhighlighted = generate_month(current_start_day, year_month_days[current_month], false);
-                            System.out.println("bing bong");
+                            StringBuilder sb = new StringBuilder();
+                            sb.append(months[current_month]).append("-").append(year).append("\n");                           
+                            dMonthHighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], true);
+                            dMonthUnhighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], false);
+                            System.out.println("bing bong");   
+                        }
+                        //generating a new month
+                        else{
+                            
+                            current_month++;
+                            if(current_month < year_month_days.length){
+                                current_start_day = day_of_the_week+1;
+                                current_day_of_the_month = 1;//setting the day to the first
+                                
+                                StringBuilder sb = new StringBuilder();
+                                sb.append(months[current_month]).append("-").append(year).append("\n");
+                                dMonthHighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], true);
+                                dMonthUnhighlighted = sb.toString() + generate_drawing_month(current_start_day, year_month_days[current_month], false);
+                            }
+                            else
+                                System.out.println("Error ran out of months");
                             
                         }
                     }
-                    Thread.sleep(5000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Calendar.class.getName()).log(Level.SEVERE, null, ex);
                 }
