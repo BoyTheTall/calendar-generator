@@ -19,7 +19,8 @@ public class CalendarGenerator {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Calendar c = new Calendar(2);
+        Calendar c = new Calendar(1,2024);
+        c.setStartDateForAnimatedCalendar(2, 12, 2, 2025);
        // System.out.print(c.generate_year(1, 2024));
         c.launch_on_console();
         

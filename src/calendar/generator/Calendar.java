@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 /**
  *This will be the central point where the animated current month will track the day in a set interval, i will first try a couple of minutes.
- * @author Doctor
+ * @author BoyTheTall
  */
 public class Calendar {
     private int day_of_the_week;//will be the one that trackes if it is a moday-sunday for the automated day cycle thing
@@ -20,26 +20,27 @@ public class Calendar {
     private int current_month; // will track the month in the automated day cycle thing
     private int year;//will track the current year in the automated day cycle thing
     private int counter_for_current_day_of_the_week;//only use this for tracking the curent day of the month when printing out a whole year of a calendar
-    private int counter_for_current_day_of_the_month;
     //the arrays were made so that i can have the days of the months and the months themsleves on hand. I would make a function that accepts any array of days but i am kinda lazy
-    private int[] year_month_days = {31,28,31,30,31,30,31,31,30,31,30,31};
-    private int[] leap_year_month_days = {31,29,31,30,31,30,31,31,30,31,30,31};
-    private String[] months = {"January","February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    private final int[] year_month_days = {31,28,31,30,31,30,31,31,30,31,30,31};
+    private final int[] leap_year_month_days = {31,29,31,30,31,30,31,31,30,31,30,31};
+    private final String[] months = {"January","February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+    private final String[] days = {"  Mo  ", "  Tu  ", "  We  ", "  Th  ", "  Fr  ", "  Sa  ", "  Su  "};
     
+    //these are the frame variables
     private String dMonthHighlighted;
     private String dMonthUnhighlighted; 
     
     
-    public Calendar(int start_day_of_year){
+    public Calendar(int start_day_of_year, int year){
         this.current_start_day = start_day_of_year;
         this.day_of_the_week = this.current_start_day;
         this.current_day_of_the_month = 1;
-        this.counter_for_current_day_of_the_month =1;
-        this.year = 2023;
+        this.year = year;
         this.current_month = 1;
         dMonthHighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], true);
         dMonthUnhighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], false);
     }
+    
     
       /**generates the calendar month with the day the month starts on and the number of days the month has
      * the mapping for the start days is as follows
@@ -58,7 +59,6 @@ public class Calendar {
    */
     public String generate_month(int start_day, int number_of_days){
         StringBuilder st = new StringBuilder();
-        String[] days = {"   M  ", "   T  ", "   W  ", "   T  ", "   F  ", "   S  ", "   S  "};
         for (int i =0; i<7; i++){
             st.append(days[i]).append("\t");
         }
@@ -129,11 +129,7 @@ public class Calendar {
      */
     public String generate_year(int start_day_of_year, int year){
         //checking if it is a leap year
-        boolean is_leap_year = false;
-        if((year%4==0 && year%100!=0) || (year%100 == 0 && year%400==0)){
-            is_leap_year = true;
-           
-        }
+        boolean is_leap_year = this.isLeapYear(year);
         this.counter_for_current_day_of_the_week = start_day_of_year;
         StringBuilder sb = new StringBuilder();
         if(is_leap_year == false){
@@ -152,10 +148,10 @@ public class Calendar {
     }
     public String generate_drawing_month(int start_day, int number_of_days, boolean track_current_day){
         StringBuilder st = new StringBuilder();
-        String[] days = {"   M  ", "   T  ", "   W  ", "   T  ", "   F  ", "   S  ", "   S  "};
+        
         st.append(months[current_month]).append("-").append(year).append("\n");
         for (int i =0; i<7; i++){
-            st.append(days[i]).append("\t");
+            st.append(this.days[i]).append("\t");
         }
         
         st.append("\n");
@@ -210,21 +206,19 @@ public class Calendar {
                     try {
                         //clearing console
                         new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                        System.out.flush();
-                        
+                                                
                         //"drawing" the current month with the highlighted day
                         System.out.print(dMonthHighlighted);
                         //putting the thread to sleep for a bit so that it doesn't immediately "draw" over what was just displayed
-                        Thread.sleep(50);
+                        Thread.sleep(100);
                         
                         
                         //clearing console
                         new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                        System.out.flush();
                         //"drawing" the current month without the highlighted day
                         System.out.print(dMonthUnhighlighted);
                         //putting the thread to sleep for a bit so that it doesn't immediately "draw" over what was just displayed
-                        Thread.sleep(50);
+                        Thread.sleep(100);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Calendar.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex) {
@@ -245,32 +239,40 @@ public class Calendar {
                         int month_length = year_month_days[current_month];
                         //goes through the current month
                         if(month_length >= current_day_of_the_month){
-                            StringBuilder sb = new StringBuilder();
-                            sb.append(months[current_month]).append("-").append(year).append("\n");                           
-                            dMonthHighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], true);
-                            dMonthUnhighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], false);
-                            System.out.println("bing bong");   
+                                                      
+                            generateFrames(); 
                         }
                         //generating a new month
                         else{
                             System.out.println(day_of_the_week);
-                            day_of_the_week = getNewMonthStartDay(day_of_the_week, year_month_days[current_month]);
+                            if(!isLeapYear(year))
+                                day_of_the_week = getNewMonthStartDay(day_of_the_week, year_month_days[current_month]);
+                            else
+                                day_of_the_week = getNewMonthStartDay(day_of_the_week, leap_year_month_days[current_month]);
+                            
                             current_month++;
                             if(current_month < year_month_days.length){
                                 current_start_day = day_of_the_week;
                                 current_day_of_the_month = 1;//setting the day to the first
-                                
-                               
-                                
-                                dMonthHighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], true);
-                                dMonthUnhighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], false);
+                                                               
+                                generateFrames();
                             }
-                            else
-                                System.out.println("Error ran out of months");
-                            
+                            //year has ended if it goes to this point
+                            else{
+                                year++;
+                                current_month = 0;
+                                current_day_of_the_month = 1;
+                                if(!isLeapYear(year))
+                                    day_of_the_week = getNewMonthStartDay(day_of_the_week, year_month_days[current_month]);
+                                else
+                                    day_of_the_week = getNewMonthStartDay(day_of_the_week, leap_year_month_days[current_month]);
+                                
+                                generateFrames();
+                                
+                            }
                         }
                     }
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Calendar.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -315,4 +317,34 @@ public class Calendar {
         }
         return new_start_day;
     } 
+    
+    public boolean isLeapYear(int year){
+        boolean is_leap_year = false;
+        if((year%4==0 && year%100!=0) || (year%100 == 0 && year%400==0)){
+            is_leap_year = true;
+           
+        }
+        return is_leap_year;
+    }
+    
+    public void setStartDateForAnimatedCalendar(int start_day_of_the_month,int day_of_the_month, int month, int year){
+        this.year = year;
+        this.current_day_of_the_month = day_of_the_month;
+        this.current_month = month;
+        this.day_of_the_week = start_day_of_the_month;
+        this.current_start_day = this.day_of_the_week;
+        this.generateFrames();
+        
+    }
+    
+    private void generateFrames(){
+        if(!isLeapYear(year)){
+            dMonthHighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], true);
+            dMonthUnhighlighted = generate_drawing_month(current_start_day, year_month_days[current_month], false);
+        }
+        else{
+            dMonthHighlighted = generate_drawing_month(current_start_day, leap_year_month_days[current_month], true);
+            dMonthUnhighlighted = generate_drawing_month(current_start_day, leap_year_month_days[current_month], false);
+        }
+    }
   }
